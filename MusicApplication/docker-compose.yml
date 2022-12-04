@@ -1,0 +1,62 @@
+version: '3.9'
+services:
+  track-service:
+    image: track_image
+    container_name: track-service
+    build: UserTrackService/
+    restart: always
+    network_mode: customer-network
+    ports:
+      - 8080:8080
+    depends_on:
+      - mongoService
+      - apigateway
+      - eureka-service
+
+  mongoService:
+    image: mongo
+    container_name: mongoService
+    ports:
+      - 27017:27017
+    network_mode: customer-network
+
+  authentication-service:
+    image: authentication_image
+    container_name: authentication-service
+    build: UserAuthenticationService/
+    restart: always
+    network_mode: customer-network
+    ports:
+      - 8085:8085
+    depends_on:
+      - mysqlService
+      - apigateway
+      - eureka-service
+
+  mysqlService:
+    image: mysql:latest
+    container_name: mysqlService
+    network_mode: customer-network
+    ports:
+      - 3306:3306
+
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: root
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+
+  apigateway:
+    container_name: apigateway
+    build: APIGatewayDemo/
+    network_mode: customer-network
+    ports:
+      - 9001:9001
+
+  eureka-service:
+    container_name: eureka-service
+    build: EurekaServerDemo/
+    restart: always
+    network_mode: customer-network
+    ports:
+      - 8761:8761
